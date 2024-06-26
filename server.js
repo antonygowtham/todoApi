@@ -71,7 +71,7 @@ app.post('/signup',async(req,res)=>{
     } catch (error) {
         console.error(error);
         if(error){
-            res.json({detail:error.detail})
+            res.json({failed:error.detail})
         }
     }
 })
@@ -82,14 +82,14 @@ app.post('/login',async(req,res)=>{
     try {
         const users=await pool.query("SELECT * FROM users WHERE email = $1",[email])
 
-        if(!users.rows.length) return res.json({detail:"user does not exist"})
+        if(!users.rows.length) return res.json({failed:"user does not exist"})
 
         const success=await bcrypt.compare(password,users.rows[0].hashed_password)
         if(success){
             const token=jwt.sign({email},'secret',{expiresIn : '1hr'});
             res.json({'email':users.rows[0].email,token});
         }else{
-            res.json({failed:"login failed"})
+            res.json({failed:"Password incorrect"})
         }
 
     } catch (error) {
